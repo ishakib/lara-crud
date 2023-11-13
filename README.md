@@ -6,19 +6,17 @@ LaraCrud is a Laravel package designed to simplify the process of generating com
 
 You can install LaraCrud via Composer. Open a terminal window and run the following command:
 
-```bash
-composer require ishakib/lara-crud
-
+```composer require ishakib/lara-crud```
 After installation, publish the package assets to customize the configuration:
 
-php artisan vendor:publish --tag=lara-crud
+```php artisan vendor:publish --tag=lara-crud```
 
-Usage
+## Usage
 Once installed, you can use the LaraCrud Artisan command to generate a complete CRUD module. Here's a simple example:
 
-php artisan lara-crud:generate Example
+```php artisan lara-crud:generate Example```
 
-Features
+##Features
 Generate View Files: Automatically create views for your CRUD operations.
 Generate Controller: Generate a controller with CRUD methods.
 Generate Model: Create an Eloquent model for your resource.
@@ -26,15 +24,14 @@ Generate Validation Files: Automatically generate validation files for form requ
 Generate Migration Files: Create database migration files for your resource.
 Generate Routes: Add CRUD routes to your web.php file.
 
-Configuration
+## Configuration
 Customize LaraCrud by editing the configuration file located at config/lara-crud.php. Adjust the settings according to your project requirements.
 
-License
+## License
 This package is open-sourced software licensed under the MIT license.
 
 Author
-Your Name
-Contribution
+A K M Shakib Hossain
 Contributions are welcome! If you find any issues or have suggestions for improvement, feel free to open an issue or create a pull request.
 
 Happy coding!
