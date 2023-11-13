@@ -1,5 +1,5 @@
 {
-    "name": "ishakib/lara-crud",
+    "name": "ishakib/laracrud",
     "type": "library",
     "description": "Laravel crud genarator",
     "authors": [
@@ -9,15 +9,17 @@
         }
     ],
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "lara-crud\\": "src/"
+            "laracrud\\": "src/"
         }
     },
     "require": {
-        "illuminate/support": "^8.0"
+        "illuminate/support": "^10.31.0"
     },
     "require-dev": {
     },
+    "version": "1.0.0",
     "license": "MIT"
 }

@@ -22,7 +22,7 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         ),
         'l' => 
         array (
-            'lara-crud\\' => 10,
+            'laracrud\\' => 9,
         ),
         'S' => 
         array (
@@ -48,7 +48,6 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         ),
         'C' => 
         array (
-            'Carbon\\Doctrine\\' => 16,
             'Carbon\\' => 7,
         ),
     );
@@ -58,7 +57,7 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
         ),
-        'lara-crud\\' => 
+        'laracrud\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
@@ -92,9 +91,10 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         ),
         'Illuminate\\Support\\' => 
         array (
-            0 => __DIR__ . '/..' . '/illuminate/macroable',
-            1 => __DIR__ . '/..' . '/illuminate/collections',
-            2 => __DIR__ . '/..' . '/illuminate/support',
+            0 => __DIR__ . '/..' . '/illuminate/collections',
+            1 => __DIR__ . '/..' . '/illuminate/conditionable',
+            2 => __DIR__ . '/..' . '/illuminate/macroable',
+            3 => __DIR__ . '/..' . '/illuminate/support',
         ),
         'Illuminate\\Contracts\\' => 
         array (
@@ -103,10 +103,6 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         'Doctrine\\Inflector\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector',
-        ),
-        'Carbon\\Doctrine\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine',
         ),
         'Carbon\\' => 
         array (
