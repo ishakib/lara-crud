@@ -1,13 +1,16 @@
 /vendor
 /.idea
-.DS_Store
+_ide_helper_models.php
 _ide_helper.php
+.DS_Store
+
 .phpstorm.meta.php
 composer.phar
 error.log
 output.txt
 /.vscode
 .php_cs.cache
+
 .phpunit.result.cache
 .editorconfig
 _ide_helper_models.php
