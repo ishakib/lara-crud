@@ -14,5 +14,10 @@
             "lara-crud\\": "src/"
         }
     },
+    "require": {
+        "illuminate/support": "^8.0"
+    },
+    "require-dev": {
+    },
     "license": "MIT"
 }
