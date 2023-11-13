@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'ishakib/lara-crud',
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
-        'reference' => 'b34943f1ec71bbc9412e305e9e65e2f6f3793537',
+        'pretty_version' => '1.0.0',
+        'version' => '1.0.0.0',
+        'reference' => NULL,
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -38,9 +38,9 @@
             'dev_requirement' => false,
         ),
         'ishakib/lara-crud' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'b34943f1ec71bbc9412e305e9e65e2f6f3793537',
+            'pretty_version' => '1.0.0',
+            'version' => '1.0.0.0',
+            'reference' => NULL,
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
