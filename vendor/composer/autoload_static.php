@@ -48,7 +48,6 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         ),
         'C' => 
         array (
-            'Carbon\\Doctrine\\' => 16,
             'Carbon\\' => 7,
         ),
     );
@@ -103,10 +102,6 @@ class ComposerStaticInitde4315d61ed2bc51f4967f1f0f73ad94
         'Doctrine\\Inflector\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector',
-        ),
-        'Carbon\\Doctrine\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine',
         ),
         'Carbon\\' => 
         array (
