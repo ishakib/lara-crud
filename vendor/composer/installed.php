@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'ishakib/lara-crud',
+        'name' => 'ishakib/laracrud',
         'pretty_version' => '1.0.0',
         'version' => '1.0.0.0',
         'reference' => NULL,
@@ -64,7 +64,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'ishakib/lara-crud' => array(
+        'ishakib/laracrud' => array(
             'pretty_version' => '1.0.0',
             'version' => '1.0.0.0',
             'reference' => NULL,
