@@ -7,6 +7,7 @@ LaraCrud is a Laravel package designed to simplify the process of generating com
 You can install LaraCrud via Composer. Open a terminal window and run the following command:
 
 ```composer require ishakib/lara-crud```
+
 After installation, publish the package assets to customize the configuration:
 
 ```php artisan vendor:publish --tag=lara-crud```
