@@ -109,8 +109,14 @@ class LaraCrudCommand extends Command
         file_put_contents(base_path('routes/api.php'), $routeContent, FILE_APPEND);
     }
 
-    protected function generateService($modelName)
+    protected function generateService($modelName, $directory)
     {
+        // Check if the 'Services' directory exists; if not, create it
+        $servicesDirectory = app_path('Services');
+        if (!is_dir($servicesDirectory)) {
+            mkdir($servicesDirectory, 0755, true);
+        }
+
         $serviceStubPath = resource_path('stubs/service.stub');
 
         if (!file_exists($serviceStubPath)) {
@@ -118,9 +124,15 @@ class LaraCrudCommand extends Command
             return;
         }
 
+        // Determine the target path based on the specified directory or the default 'Services' directory
+        $servicePath = $directory
+            ? $directory . '/' . $modelName . 'Service.php'
+            : $servicesDirectory . '/' . $modelName . 'Service.php';
+
         $serviceContent = file_get_contents($serviceStubPath);
-        file_put_contents(app_path("Services/{$modelName}Service.php"), $serviceContent);
+        file_put_contents($servicePath, $serviceContent);
     }
+
 
     protected function includeDemoControllerContent($modelName)
     {
