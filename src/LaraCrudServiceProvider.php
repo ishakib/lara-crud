@@ -25,9 +25,7 @@ class LaraCrudServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerCommands();
-        $this->loadViewsFrom(__DIR__ . '/../Views', 'laracrud');
-        $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
         $this->publishes([
             __DIR__.'/../config/laracrud.php' => config_path('laracrud.php'),
         ], 'laracrud-config');
