@@ -1,6 +1,6 @@
 <?php
 
-namespace LaraCrud\Providers;
+namespace laracrud;
 
 use Illuminate\Support\ServiceProvider;
 
