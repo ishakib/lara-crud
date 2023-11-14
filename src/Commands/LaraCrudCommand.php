@@ -12,9 +12,8 @@ class LaraCrudCommand extends Command
     protected $signature = 'lara:crud';
     protected $description = 'Generate model, migration, request, validation, route, and service for CRUD';
 
-    public function handle()
+    public function handle(LaraCrudServiceProvider $serviceProvider)
     {
-        // Get model name and directory from interactive prompts
         list($modelName, $directory) = $this->getInteractiveInputs();
 
         $pluralModelName = Str::plural(strtolower($modelName));
@@ -27,9 +26,10 @@ class LaraCrudCommand extends Command
         $this->includeDemoControllerContent($modelName, $directory);
 
         $this->appendRoute($modelName, $pluralModelName, $directory);
-        $this->accessBindModels($modelName); // Include the accessBindModels method call
+        $this->accessBindModels($serviceProvider, $modelName);
         $this->info('CRUD code (excluding controller) generated successfully!');
     }
+
 
     protected function getInteractiveInputs()
     {
@@ -54,9 +54,8 @@ class LaraCrudCommand extends Command
         Artisan::call('make:model', ['name' => $modelName]);
     }
 
-    protected function accessBindModels($modelName)
+    protected function accessBindModels(LaraCrudServiceProvider $serviceProvider, $modelName)
     {
-        $serviceProvider = App::make(\laracrud\LaraCrudServiceProvider::class);
         $serviceProvider->bindModels($modelName);
     }
 
