@@ -29,7 +29,10 @@ class LaraCrudServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/laracrud.php' => config_path('laracrud.php'),
         ], 'laracrud-config');
-    }
+
+        $this->publishes([
+            __DIR__.'/../resources/stubs' => resource_path('stubs'),
+        ], 'laracrud-assets');    }
 
     /**
      * Register the package commands.

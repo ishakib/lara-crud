@@ -67,18 +67,30 @@ class LaraCrudCommand extends Command
 
     protected function generateValidation($requestClassName, $directory = null)
     {
+        // Use the Laravel 'app/Http/Requests' directory as the default if no directory is specified
         $defaultDirectory = app_path('Http/Requests');
+
+        // Check if the specified directory exists; if not, use the default directory
         if ($directory && !is_dir($directory)) {
             $this->error("The specified directory '{$directory}' does not exist. Using default directory: {$defaultDirectory}");
             $directory = $defaultDirectory;
         }
 
-        $validationContent = file_get_contents(resource_path('stubs/validation.stub'));
+        $stubFilePath = resource_path('stubs/validation.stub');
+
+        // Check if the stub file exists
+        if (!file_exists($stubFilePath)) {
+            $this->error("Validation stub file not found: {$stubFilePath}");
+            return;
+        }
+
+        $validationContent = file_get_contents($stubFilePath);
 
         $validationPath = $directory ? $directory . '/' . $requestClassName . '.php' : $defaultDirectory . '/' . $requestClassName . '.php';
 
         file_put_contents($validationPath, $validationContent);
     }
+
     protected function appendRoute($modelName, $pluralModelName)
     {
         $routeContent = "\nRoute::resource('{$pluralModelName}', '{$modelName}Controller');";
