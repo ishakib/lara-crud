@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
-
+use laracrud\LaraCrudServiceProvider;
 class LaraCrudCommand extends Command
 {
     protected $signature = 'lara:crud';
