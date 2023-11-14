@@ -40,7 +40,7 @@ class LaraCrudServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \LaraCrud\Commands\LaraCrudCommand::class,
+                \laracrud\Commands\LaraCrudCommand::class,
             ]);
         }
     }
