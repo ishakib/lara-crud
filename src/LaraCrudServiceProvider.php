@@ -13,7 +13,7 @@ class LaraCrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/laracrud.php', 'laracrud');
+        $this->mergeConfigFrom(__DIR__ . '/../config/laracrud.php', 'laracrud');
 
     }
 
@@ -27,12 +27,13 @@ class LaraCrudServiceProvider extends ServiceProvider
         $this->registerCommands();
 
         $this->publishes([
-            __DIR__.'/../config/laracrud.php' => config_path('laracrud.php'),
+            __DIR__ . '/../config/laracrud.php' => config_path('laracrud.php'),
         ], 'laracrud-config');
 
         $this->publishes([
-            __DIR__.'/../resources/stubs' => resource_path('stubs'),
-        ], 'laracrud-assets');    }
+            __DIR__ . '/../resources/stubs' => resource_path('stubs'),
+        ], 'laracrud-assets');
+    }
 
     /**
      * Register the package commands.

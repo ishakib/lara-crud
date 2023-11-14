@@ -5,6 +5,7 @@ namespace LaraCrud\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
 
 class LaraCrudCommand extends Command
 {
@@ -22,12 +23,14 @@ class LaraCrudCommand extends Command
         $this->generateMigration($modelName, $pluralModelName, $directory);
         $this->generateRequest($modelName, $directory);
         $this->generateValidation("App\Http\Requests\\{$modelName}Request", $directory);
-        $this->appendRoute($modelName, $pluralModelName, $directory);
         $this->generateService($modelName, $directory);
         $this->includeDemoControllerContent($modelName, $directory);
 
+        $this->appendRoute($modelName, $pluralModelName, $directory);
+        $this->accessBindModels($modelName); // Include the accessBindModels method call
         $this->info('CRUD code (excluding controller) generated successfully!');
     }
+
     protected function getInteractiveInputs()
     {
         // Interactive prompt for the model name
@@ -46,10 +49,15 @@ class LaraCrudCommand extends Command
         return [$modelName, $directory];
     }
 
-
     protected function generateModel($modelName)
     {
         Artisan::call('make:model', ['name' => $modelName]);
+    }
+
+    protected function accessBindModels($modelName)
+    {
+        $serviceProvider = App::make(\laracrud\LaraCrudServiceProvider::class);
+        $serviceProvider->bindModels($modelName);
     }
 
     protected function generateMigration($modelName, $pluralModelName)
@@ -91,10 +99,14 @@ class LaraCrudCommand extends Command
         file_put_contents($validationPath, $validationContent);
     }
 
-    protected function appendRoute($modelName, $pluralModelName)
+    protected function appendRoute($modelName, $pluralModelName, $directory)
     {
-        $routeContent = "\nRoute::resource('{$pluralModelName}', '{$modelName}Controller');";
-        file_put_contents(base_path('routes/web.php'), $routeContent, FILE_APPEND);
+        // Define the model key name for implicit route model binding
+        $modelKeyName = Str::camel(class_basename($modelName));
+
+        $routeContent = "\nRoute::apiResource('{$pluralModelName}', '{$modelName}Controller')->parameters(['{$pluralModelName}' => '{$modelKeyName}']);";
+
+        file_put_contents(base_path('routes/api.php'), $routeContent, FILE_APPEND);
     }
 
     protected function generateService($modelName)

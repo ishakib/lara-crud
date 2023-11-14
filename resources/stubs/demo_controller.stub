@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{ModelName};
+use App\Http\Requests\{ModelName}Request;
+use App\Services\{ModelName}Service;
+use Illuminate\Http\Request;
+
+class {ModelName}Controller extends Controller
+{
+    protected $service;
+
+    public function __construct({ModelName}Service $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index()
+    {
+        return {ModelName}Resource::collection($this->service->latest()->paginate(request()->get('per_page', 10)));
+    }
+    public function store({ModelName}Request $request)
+    {
+        $createdItem = $this->service->create($request->validated());
+        return response()->json(['message' => '{ModelName} created successfully', 'data' => new {ModelName}Resource($createdItem)], 201);
+    }
+
+    public function show({ModelName} $dynamicModel)
+    {
+        return response()->json(['data' => new {ModelName}Resource($dynamicModel)], 200);
+    }
+
+    public function update({ModelName}Request $request, $id)
+    {
+        $updatedItem = $this->service->update($id, $request->validated());
+
+        if (!$updatedItem) {
+            return response()->json(['message' => '{ModelName} not found'], 404);
+        }
+
+        return response()->json(['message' => '{ModelName} updated successfully', 'data' => new {ModelName}Resource($updatedItem)], 200);
+    }
+
+    public function destroy({ModelName} $dynamicModel)
+    {
+        $deleted = $dynamicModel->delete();
+
+        if (!$deleted) {
+            return response()->json(['message' => '{ModelName} not found'], 404);
+        }
+
+        return response()->json(['message' => '{ModelName} deleted successfully'], 200);
+    }
+}
