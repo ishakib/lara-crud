@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class LaraCrudCommand extends Command
 {
-    protected $signature = 'lara:crud {model} {--directory= : Specify the directory for CRUD generation}';
+    protected $signature = 'lara:crud';
     protected $description = 'Generate model, migration, request, validation, route, and service for CRUD';
 
     public function handle()
