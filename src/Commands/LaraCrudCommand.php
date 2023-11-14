@@ -13,18 +13,10 @@ class LaraCrudCommand extends Command
 
     public function handle()
     {
-        $modelName = $this->argument('model');
+        // Get model name and directory from interactive prompts
+        list($modelName, $directory) = $this->getInteractiveInputs();
+
         $pluralModelName = Str::plural(strtolower($modelName));
-        $directory = $this->option('directory');
-
-        // Use the Laravel 'app' directory as the default if no directory is specified
-        $defaultDirectory = app_path();
-
-        // Check if the specified directory exists; if not, use the default directory
-        if ($directory && !is_dir($directory)) {
-            $this->error("The specified directory '{$directory}' does not exist. Using default directory: {$defaultDirectory}");
-            $directory = $defaultDirectory;
-        }
 
         $this->generateModel($modelName, $directory);
         $this->generateMigration($modelName, $pluralModelName, $directory);
@@ -36,6 +28,24 @@ class LaraCrudCommand extends Command
 
         $this->info('CRUD code (excluding controller) generated successfully!');
     }
+    protected function getInteractiveInputs()
+    {
+        // Interactive prompt for the model name
+        $modelName = $this->ask('Enter model name...');
+
+        // Interactive prompt for specifying a directory
+        $directoryChoice = $this->choice('Do you want to specify a directory where every file will be created?', ['y', 'n'], 'n');
+
+        if ($directoryChoice === 'y') {
+            // Interactive prompt for the directory name
+            $directory = $this->ask('Enter directory name...');
+        } else {
+            $directory = null;
+        }
+
+        return [$modelName, $directory];
+    }
+
 
     protected function generateModel($modelName)
     {
