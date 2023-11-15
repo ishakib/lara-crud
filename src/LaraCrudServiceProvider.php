@@ -15,8 +15,12 @@ class LaraCrudServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/laracrud.php', 'laracrud');
 
+        $this->app->bind(LaraCrudService::class, function () {
+            $service = new LaraCrudService();
+            $service->setServiceProvider(app(LaraCrudServiceProvider::class));
+            return $service;
+        });
     }
-
     /**
      * Bootstrap services.
      *
