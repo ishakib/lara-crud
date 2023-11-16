@@ -26,8 +26,6 @@ class LaraCrudCommand extends Command
         $crudService->generateValidation("App\Http\Requests\\{$modelName}Request", $directory);
         $crudService->generateService($modelName, $directory);
         $crudService->includeDemoControllerContent($modelName, $directory);
-
-        $crudService->appendRoute($modelName, $pluralModelName, $directory);
         $crudService->appendRoute($modelName, $pluralModelName, $directory);
 
         $this->info('CRUD code (excluding controller) generated successfully!');

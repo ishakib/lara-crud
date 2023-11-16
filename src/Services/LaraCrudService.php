@@ -92,29 +92,27 @@ class LaraCrudService
 
     public function appendRoute($modelName, $pluralModelName, $directory)
     {
-        // Define the model key name for implicit route model binding
         $modelKeyName = Str::camel(class_basename($modelName));
-
-        // Get the existing route file content
         $routeFilePath = base_path('routes/api.php');
         $existingRouteContent = File::exists($routeFilePath) ? File::get($routeFilePath) : '';
 
-        // Check if the model binding already exists to avoid duplication
-        if (Str::contains($existingRouteContent, "Route::model('{$modelKeyName}', {$modelName}::class);")) {
-            $this->command->info("Model binding for '{$modelName}' already exists.");
-            return;
+        // Define the controller name
+        $modelNameController = "{$modelName}Controller";
+
+        // Define the namespace
+        $namespace = 'App\Http\Controllers';
+
+        $apiResource = "Route::apiResource('$pluralModelName', '$namespace\\$modelNameController::class');";
+
+        if (!Str::contains($existingRouteContent, $apiResource)) {
+            File::append($routeFilePath, "\n$apiResource");
+            $this->command->info("API resource route for '$modelName' added successfully.");
+        } else {
+            $this->command->info("API resource route for '$modelName' already exists.");
         }
-
-        // Append the model binding to the route file
-        $routeContent = "\nRoute::model('{$modelKeyName}', {$modelName}::class);";
-        File::append($routeFilePath, $routeContent);
-
-        // Add the API resource route
-        $routeContent = "\nRoute::apiResource('{$pluralModelName}', '{$modelName}Controller')->parameters(['{$pluralModelName}' => '{$modelKeyName}']);";
-        File::append($routeFilePath, $routeContent);
-
-        $this->command->info("Model binding and API resource route for '{$modelName}' added successfully.");
     }
+
+
 
     public function generateService($modelName, $directory)
     {
