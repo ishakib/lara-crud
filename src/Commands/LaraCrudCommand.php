@@ -3,9 +3,7 @@
 namespace laracrud\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\App;
 use laracrud\Services\LaraCrudService;
 
 class LaraCrudCommand extends Command
@@ -19,7 +17,9 @@ class LaraCrudCommand extends Command
         $crudService->setCommand($this);
 
         list($modelName, $directory) = $crudService->getInteractiveInputs();
+
         $pluralModelName = Str::plural(strtolower($modelName));
+
         $crudService->generateModel($modelName, $directory);
         $crudService->generateMigration($modelName, $pluralModelName, $directory);
         $crudService->generateRequest($modelName, $directory);
@@ -28,7 +28,8 @@ class LaraCrudCommand extends Command
         $crudService->includeDemoControllerContent($modelName, $directory);
 
         $crudService->appendRoute($modelName, $pluralModelName, $directory);
-        $crudService->accessBindModels($serviceProvider, $modelName);
-        $crudService->info('CRUD code (excluding controller) generated successfully!');
+        $crudService->appendRoute($modelName, $pluralModelName, $directory);
+
+        $this->info('CRUD code (excluding controller) generated successfully!');
     }
 }

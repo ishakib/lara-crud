@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use laracrud\LaraCrudServiceProvider;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 
 class LaraCrudService
 {
@@ -70,7 +71,7 @@ class LaraCrudService
 
         // Check if the specified directory exists; if not, use the default directory
         if ($directory && !is_dir($directory)) {
-            $this->serviceProvider->error("The specified directory '{$directory}' does not exist. Using default directory: {$defaultDirectory}");
+            $this->command->error("The specified directory '{$directory}' does not exist. Using default directory: {$defaultDirectory}");
             $directory = $defaultDirectory;
         }
 
@@ -78,7 +79,7 @@ class LaraCrudService
 
         // Check if the stub file exists
         if (!file_exists($stubFilePath)) {
-            $this->serviceProvider->error("Validation stub file not found: {$stubFilePath}");
+            $this->command->error("Validation stub file not found: {$stubFilePath}");
             return;
         }
 
@@ -94,9 +95,25 @@ class LaraCrudService
         // Define the model key name for implicit route model binding
         $modelKeyName = Str::camel(class_basename($modelName));
 
-        $routeContent = "\nRoute::apiResource('{$pluralModelName}', '{$modelName}Controller')->parameters(['{$pluralModelName}' => '{$modelKeyName}']);";
+        // Get the existing route file content
+        $routeFilePath = base_path('routes/api.php');
+        $existingRouteContent = File::exists($routeFilePath) ? File::get($routeFilePath) : '';
 
-        file_put_contents(base_path('routes/api.php'), $routeContent, FILE_APPEND);
+        // Check if the model binding already exists to avoid duplication
+        if (Str::contains($existingRouteContent, "Route::model('{$modelKeyName}', {$modelName}::class);")) {
+            $this->command->info("Model binding for '{$modelName}' already exists.");
+            return;
+        }
+
+        // Append the model binding to the route file
+        $routeContent = "\nRoute::model('{$modelKeyName}', {$modelName}::class);";
+        File::append($routeFilePath, $routeContent);
+
+        // Add the API resource route
+        $routeContent = "\nRoute::apiResource('{$pluralModelName}', '{$modelName}Controller')->parameters(['{$pluralModelName}' => '{$modelKeyName}']);";
+        File::append($routeFilePath, $routeContent);
+
+        $this->command->info("Model binding and API resource route for '{$modelName}' added successfully.");
     }
 
     public function generateService($modelName, $directory)
@@ -109,7 +126,7 @@ class LaraCrudService
         $serviceStubPath = resource_path('stubs/service.stub');
 
         if (!file_exists($serviceStubPath)) {
-            $this->serviceProvider->error("Service stub file not found: {$serviceStubPath}");
+            $this->command->error("Service stub file not found: {$serviceStubPath}");
             return;
         }
 
@@ -135,7 +152,7 @@ class LaraCrudService
         $demoControllerStubPath = resource_path('stubs/demo_controller.stub');
 
         if (!file_exists($demoControllerStubPath)) {
-            $this->serviceProvider->error("Demo Controller stub file not found: {$demoControllerStubPath}");
+            $this->command->error("Demo Controller stub file not found: {$demoControllerStubPath}");
             return;
         }
 
@@ -159,6 +176,6 @@ class LaraCrudService
         // Write the demo controller content to the target path
         file_put_contents($controllerPath, $demoControllerContent);
 
-        $this->serviceProvider->info("Demo Controller generated successfully: {$controllerPath}");
+        $this->command->info("Demo Controller generated successfully: {$controllerPath}");
     }
 }
