@@ -27,6 +27,6 @@ class LaraCrudCommand extends Command
         $crudService->includeDemoControllerContent($modelName, $directory);
         $crudService->appendRoute($modelName, $pluralModelName, $directory);
 
-        $this->info('CRUD code (excluding controller) generated successfully!');
+        $this->info('CRUD code generated successfully!');
     }
 }
