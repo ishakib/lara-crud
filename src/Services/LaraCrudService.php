@@ -80,7 +80,7 @@ class LaraCrudService
         $modelNameController = "{$modelName}Controller";
         $namespace = 'App\Http\Controllers';
 
-        $apiResource = "Route::apiResource('$pluralModelName', '$namespace\\$modelNameController::class');";
+        $apiResource = "Route::apiResource('$pluralModelName', {$namespace}\\{$modelNameController}::class);";
 
         if (!Str::contains($existingRouteContent, $apiResource)) {
             File::append($routeFilePath, "\n$apiResource");
