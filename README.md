@@ -17,14 +17,14 @@ You can install LaraCrud via Composer. Open a terminal window and run the follow
 
 ```composer require ishakib/lara-crud```
 
-After installation, publish the package assets to customize the configuration:
+After installation, publish the package assets:
 
-```php artisan vendor:publish --tag=lara-crud```
+```php artisan vendor:publish --tag=laracrud-assets```
 
 ## Usage
 Once installed, you can use the LaraCrud Artisan command to generate a complete CRUD module. Here's a simple example:
 
-```php artisan lara-crud:generate Example```
+```php artisan lara:crud```
 
 ##Features
 Generate View Files: Automatically create views for your CRUD operations.
