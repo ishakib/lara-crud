@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\{ModelName};
+
+class {ModelName}Service
+{
+    /**
+     * Add your service methods here
+     */
+
+    // Example service method
+    public function exampleMethod({ModelName} $model)
+    {
+        // Your service logic here
+    }
+}

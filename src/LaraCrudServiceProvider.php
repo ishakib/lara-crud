@@ -1,6 +1,6 @@
 <?php
 
-namespace LaraCrud\Providers;
+namespace laracrud;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -13,10 +13,14 @@ class LaraCrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/laracrud.php', 'laracrud');
+        $this->mergeConfigFrom(__DIR__ . '/../config/laracrud.php', 'laracrud');
 
+        $this->app->bind(LaraCrudService::class, function () {
+            $service = new LaraCrudService();
+            $service->setServiceProvider(app(LaraCrudServiceProvider::class));
+            return $service;
+        });
     }
-
     /**
      * Bootstrap services.
      *
@@ -25,12 +29,14 @@ class LaraCrudServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerCommands();
-        $this->loadViewsFrom(__DIR__ . '/../Views', 'laracrud');
-        $this->loadMigrationsFrom(__DIR__ . '/../Migrations');
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
         $this->publishes([
-            __DIR__.'/../config/laracrud.php' => config_path('laracrud.php'),
+            __DIR__ . '/../config/laracrud.php' => config_path('laracrud.php'),
         ], 'laracrud-config');
+
+        $this->publishes([
+            __DIR__ . '/../resources/stubs' => resource_path('stubs'),
+        ], 'laracrud-assets');
     }
 
     /**
@@ -42,7 +48,7 @@ class LaraCrudServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \LaraCrud\Commands\LaraCrudCommand::class,
+                \laracrud\Commands\LaraCrudCommand::class,
             ]);
         }
     }
