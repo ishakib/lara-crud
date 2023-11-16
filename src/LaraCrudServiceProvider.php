@@ -3,6 +3,7 @@
 namespace laracrud;
 
 use Illuminate\Support\ServiceProvider;
+use laracrud\Commands\LaraCrudCommand;
 
 class LaraCrudServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,7 @@ class LaraCrudServiceProvider extends ServiceProvider
             return $service;
         });
     }
+
     /**
      * Bootstrap services.
      *
@@ -48,7 +50,7 @@ class LaraCrudServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \laracrud\Commands\LaraCrudCommand::class,
+                LaraCrudCommand::class,
             ]);
         }
     }

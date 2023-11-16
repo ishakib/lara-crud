@@ -11,7 +11,6 @@ class LaraCrudCommand extends Command
     protected $signature = 'lara:crud';
     protected $description = 'Generate model, migration, request, validation, route, and service for CRUD';
 
-
     public function handle(LaraCrudService $crudService)
     {
         $crudService->setCommand($this);

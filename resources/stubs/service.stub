@@ -6,13 +6,8 @@ use App\Models\{ModelName};
 
 class {ModelName}Service
 {
-    /**
-     * Add your service methods here
-     */
-
-    // Example service method
-    public function exampleMethod({ModelName} $model)
+    public function __construct({ModelName} $model)
     {
-        // Your service logic here
+        $this->model = $model;
     }
 }

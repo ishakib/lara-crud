@@ -2,21 +2,22 @@
 
 namespace laracrud\Services;
 
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use laracrud\LaraCrudServiceProvider;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 
 class LaraCrudService
 {
-    protected $command;
     public $serviceProvider;
+    protected $command;
 
     public function setCommand(Command $command)
     {
         $this->command = $command;
     }
+
     // Use method injection instead of constructor injection
     public function setServiceProvider(Command $command, LaraCrudServiceProvider $serviceProvider)
     {
@@ -113,7 +114,6 @@ class LaraCrudService
     }
 
 
-
     public function generateService($modelName, $directory)
     {
         $servicesDirectory = app_path('Services');
@@ -137,7 +137,6 @@ class LaraCrudService
         file_put_contents($servicePath, $serviceContent);
     }
 
-
     public function includeDemoControllerContent($modelName, $directory)
     {
         // Define the model key name for implicit route model binding
@@ -147,7 +146,7 @@ class LaraCrudService
         $controllerName = "{$modelName}Controller";
 
         // Get the demo controller stub content
-        $demoControllerStubPath = resource_path('stubs/demo_controller.stub');
+        $demoControllerStubPath = resource_path('stubs/controller.stub');
 
         if (!file_exists($demoControllerStubPath)) {
             $this->command->error("Demo Controller stub file not found: {$demoControllerStubPath}");
