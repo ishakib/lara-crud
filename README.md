@@ -1,10 +1,10 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+  <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+  <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+  <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
 # LaraCrud
@@ -13,36 +13,45 @@ LaraCrud is a Laravel package designed to simplify the process of generating com
 
 ## Installation
 
+### Step 1: Install LaraCrud
+
 You can install LaraCrud via Composer. Open a terminal window and run the following command:
 
-```composer require ishakib/lara-crud```
+```
+composer require ishakib/lara-crud
+```
 
-After installation, publish the package assets:
-
-Go to config/app.php and find providers array
-At the bottom providers array add two lines given below
-
+**Step 2:**  Uncomment laracrud\LaraCrudServiceProvider::class from the providers array in the config/app.php file:
 ```
 laracrud\LaraCrudServiceProvider::class,
 //App\Providers\RepositoryRegisterProvider::class
 ```
 
-```php artisan vendor:publish --tag=laracrud-publish```
+**Step 3:** Run the following command to publish the Laravel CRUD assets:
 
-Again Go to config/app.php and find providers array
-At the bottom providers array add two lines given below
+```
+php artisan vendor:publish --tag=laracrud-publish
+```
+
+**Step 4:**  Uncomment App\Providers\RepositoryRegisterProvider::class from the providers array in the config/app.php file:
+```
+App\Providers\RepositoryRegisterProvider::class
+```
+**Step 5:** The providers array in the config/app.php file should look like:
 ```
 laracrud\LaraCrudServiceProvider::class,
 App\Providers\RepositoryRegisterProvider::class
 ```
-```php artisan vendor:publish --tag=laracrud-publish```
+Now, your Laravel project is integrated with the CRUD Generator. Follow these steps for a smooth setup.
 
-
-## Usage
-Once installed, you can use the LaraCrud Artisan command to generate a complete CRUD module. Here's a simple example:
-
-```php artisan lara:crud```
-
+Now Enjoy the crud cmd from terminal
+```
+php artisan lara:crud
+```
+After creating all desired crud you need to migration
+```
+php artisan nigrate:fresh
+```
 ##Features
 Generate View Files: Automatically create views for your CRUD operations.
 Generate Controller: Generate a controller with CRUD methods.
