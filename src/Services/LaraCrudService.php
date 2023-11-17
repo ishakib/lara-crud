@@ -74,7 +74,7 @@ class LaraCrudService
     public function appendRoute($modelName, $pluralModelName, $directory): void
     {
         $modelKeyName = Str::camel(class_basename($modelName));
-        $routeFilePath = base_path('routes/api.php');
+        $routeFilePath = base_path('routes/web.php');
         $existingRouteContent = File::exists($routeFilePath) ? File::get($routeFilePath) : '';
 
         $modelNameController = "{$modelName}Controller";
