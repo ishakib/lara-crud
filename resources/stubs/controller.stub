@@ -16,24 +16,26 @@ class {ModelName}Controller extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(): JsonResponse
     {
-        return {ModelName}Resource::collection($this->service->latest()->paginate(request()->get('per_page', 10)));
+        $posts = $this->service->all();
+        return response()->json(['posts' => $posts]);
     }
     public function store({ModelName}Request $request)
     {
-        $createdItem = $this->service->create($request->validated());
-        return response()->json(['message' => '{ModelName} created successfully', 'data' => new {ModelName}Resource($createdItem)], 201);
+        $post = $this->postService->create($request->validated());
+
+        return response()->json(['post' => $post], 201);
     }
 
     public function show({ModelName} $dynamicModel)
     {
-        return response()->json(['data' => new {ModelName}Resource($dynamicModel)], 200);
+        return response()->json(['data' => $dynamicModel], 200);
     }
 
-    public function update({ModelName}Request $request, $id)
+    public function update({ModelName}Request $request, {ModelName} $dynamicModel)
     {
-        $updatedItem = $this->postService->update($id, $request->validated());
+        $updatedItem = $this->service->update($dynamicModel->id, $request->validated());
         if (!$updatedItem) {
             return response()->json(['message' => '{ModelName} not found'], 404);
         }
@@ -43,7 +45,7 @@ class {ModelName}Controller extends Controller
 
     public function destroy({ModelName} $dynamicModel): JsonResponse
     {
-        $deleted = $this->postService->delete($dynamicModel->id);
+        $deleted = $this->service->delete($dynamicModel->id);
 
         if (!$deleted) {
             return response()->json(['message' => '{ModelName} not found'], 404);

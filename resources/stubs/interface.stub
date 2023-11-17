@@ -1,0 +1,7 @@
+<?php
+namespace App\Repositories\Contracts;
+
+interface {ModelName}RepositoryInterface extends BaseRepositoryInterface
+{
+
+}

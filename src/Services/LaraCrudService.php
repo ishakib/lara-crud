@@ -124,6 +124,73 @@ class LaraCrudService
         $this->command->info("Service generated successfully: {$servicePath}");
     }
 
+    public function generateRepository(): void
+    {
+        $repositoryDirectory = app_path('Repositories/Eloquent/');
+        if (!is_dir($repositoryDirectory)) {
+            mkdir($repositoryDirectory, 0755, true);
+        }
+
+        $repositoryStubPath = resource_path('stubs/repository.stub');
+
+        if (!file_exists($repositoryStubPath)) {
+            $this->command->error("Service stub file not found: {$repositoryStubPath}");
+            return;
+        }
+
+        $repositoryContent = file_get_contents($repositoryStubPath);
+
+        $repositoryContent = str_replace('{ModelName}', $modelName, $repositoryContent);
+
+        $repositoryClassName = "{$modelName}Repository";
+
+        $repositoryPath = $directory
+            ? $directory . '/' . $repositoryClassName . '.php'
+            : $repositoryDirectory . '/' . $repositoryClassName . '.php';
+
+        $targetDirectory = dirname($repositoryPath);
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
+        file_put_contents($repositoryPath, $repositoryContent);
+
+        $this->command->info("Repository generated successfully: {$repositoryPath}");
+    }
+
+    public function generateInterface(): void
+    {
+        $interfaceDirectory = app_path('Repositories/Contracts/');
+        if (!is_dir($interfaceDirectory)) {
+            mkdir($interfaceDirectory, 0755, true);
+        }
+
+        $interfaceStubPath = resource_path('stubs/repository.stub');
+
+        if (!file_exists($interfaceStubPath)) {
+            $this->command->error("Service stub file not found: {$interfaceStubPath}");
+            return;
+        }
+
+        $interfaceContent = file_get_contents($interfaceStubPath);
+
+        $interfaceContent = str_replace('{ModelName}', $modelName, $interfaceContent);
+
+        $interfaceClassName = "{$modelName}RepositoryInterface";
+
+        $interfacePath = $directory
+            ? $directory . '/' . $interfaceClassName . '.php'
+            : $interfaceDirectory . '/' . $interfaceClassName . '.php';
+
+        $targetDirectory = dirname($interfacePath);
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
+        file_put_contents($interfacePath, $interfaceContent);
+
+        $this->command->info("Interface generated successfully: {$interfacePath}");
+    }
 
     public function includeDemoControllerContent($modelName, $directory): void
     {

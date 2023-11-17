@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\{ModelName};
 
-class {ModelName}Service
+class {ModelName}Service extends BaseService
 {
-    public function __construct({ModelName} $model)
+    protected $repository;
+
+    public function __construct({ModelName}RepositoryInterface $repository)
     {
-        $this->model = $model;
+        parent::__construct($repository);
     }
 }
