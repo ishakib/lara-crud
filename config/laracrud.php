@@ -11,5 +11,9 @@ return [
     |
     */
 
-    // Add configuration options as needed...
+    'repositories' => [
+        'namespace' => 'App\Repositories',
+        'contracts' => 'Contracts',
+        'path' => 'Repositories',
+    ],
 ];

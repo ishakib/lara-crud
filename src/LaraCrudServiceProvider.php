@@ -3,6 +3,7 @@
 namespace laracrud;
 
 use Illuminate\Support\ServiceProvider;
+use laracrud\Commands\LaraCrudCommand;
 
 class LaraCrudServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,7 @@ class LaraCrudServiceProvider extends ServiceProvider
             return $service;
         });
     }
+
     /**
      * Bootstrap services.
      *
@@ -32,11 +34,11 @@ class LaraCrudServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../config/laracrud.php' => config_path('laracrud.php'),
-        ], 'laracrud-config');
-
-        $this->publishes([
             __DIR__ . '/../resources/stubs' => resource_path('stubs'),
-        ], 'laracrud-assets');
+            __DIR__ . '/Repositories' => app_path('Repositories'),
+            __DIR__ . '/Services' => app_path('Services'),
+            __DIR__ . '/RepositoryRegisterProvider.php' => app_path('Providers/RepositoryRegisterProvider.php'),
+        ], 'laracrud-publish');
     }
 
     /**
@@ -48,7 +50,7 @@ class LaraCrudServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \laracrud\Commands\LaraCrudCommand::class,
+                LaraCrudCommand::class,
             ]);
         }
     }

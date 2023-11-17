@@ -2,74 +2,181 @@
 
 namespace laracrud\Services;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
-use laracrud\LaraCrudServiceProvider;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class LaraCrudService
 {
     protected $command;
-    public $serviceProvider;
 
-    public function setCommand(Command $command)
+    public function setCommand(Command $command): void
     {
         $this->command = $command;
-    }
-    // Use method injection instead of constructor injection
-    public function setServiceProvider(Command $command, LaraCrudServiceProvider $serviceProvider)
-    {
-        $this->serviceProvider = $serviceProvider;
     }
 
     public function getInteractiveInputs(): array
     {
-        // Interactive prompt for the model name
-        $modelName = $this->command->ask('Enter model name...');
+        do {
+            $modelName = $this->getModelName();
+        } while (empty(trim($modelName)));
 
-        // Interactive prompt for specifying a directory
-        $directoryChoice = $this->command->choice('Do you want to specify a directory where every file will be created?', ['y', 'n'], 'n');
+        $this->command->comment($this->colorize("Note: Enter fillable fields (comma-separated, field:type), Example:  name1:string, name2:string, date_of_birth:date....", "purple"));
 
-        if ($directoryChoice === 'y') {
-            // Interactive prompt for the directory name
-            $directory = $this->command->ask('Enter directory name...');
-        } else {
-            $directory = null;
+        $fillableInput = $this->command->ask('Enter fillable fields (comma-separated, or leave blank)', '');
+        $fillableFields = $this->parseFields($fillableInput);
+
+        $foreignIdInput = $this->command->ask('Enter foreign ID fields (comma-separated, or leave blank)', '');
+        $foreignIdFields = $this->parseFields($foreignIdInput);
+
+        $directory = null;
+
+        return [$modelName, $directory, $fillableFields, $foreignIdFields];
+    }
+
+    private function getModelName(): string
+    {
+        do {
+            $this->command->comment(
+                $this->colorize('Note: Model name must be Singular and in PascalCase (Exp: ModelName).
+            If you want to exit, type "q".', 'purple'));
+
+            $modelName = $this->command->ask(
+                $this->colorize('Enter model name...', 'cyan')
+            );
+
+            if (strtolower($modelName) === 'q') {
+                $this->command->line($this->colorize('Exiting command...', 'yellow'));
+                exit();
+            }
+
+        } while (empty(trim($modelName)));
+
+        return $modelName;
+    }
+
+    private function colorize($text, $color): string
+    {
+        $colorCodes = [
+            'black' => "\033[0;30m",
+            'red' => "\033[0;31m",
+            'green' => "\033[0;32m",
+            'yellow' => "\033[0;33m",
+            'blue' => "\033[0;34m",
+            'purple' => "\033[1;35m",
+            'cyan' => "\033[0;36m",
+            'white' => "\033[0;37m",
+        ];
+
+        $reset = "\033[0m";
+
+        return $colorCodes[$color] . $text . $reset;
+    }
+
+    public function parseFields($fields, $type = 'fillable'): array
+    {
+        if (empty($fields)) {
+            return [];
         }
 
-        return [$modelName, $directory];
+        $fieldsArray = [];
+
+        // Add a condition to check for an empty string
+        if ($fields !== '') {
+            foreach (explode(',', $fields) as $field) {
+                $fieldParts = array_map('trim', explode(':', $field));
+                $name = $fieldParts[0];
+
+                if ($type === 'fillable') {
+                    $type = $fieldParts[1] ?? 'string';
+                } elseif ($type === 'foreign_id') {
+                    $type = 'foreignId';
+                }
+
+                $fieldsArray[] = compact('name', 'type');
+            }
+        }
+
+        return $fieldsArray;
     }
 
-    public function generateModel($modelName)
-    {
-        Artisan::call('make:model', ['name' => $modelName]);
-    }
 
-    public function accessBindModels(LaraCrudServiceProvider $serviceProvider, $modelName)
+    public function generateModel($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
     {
-        $serviceProvider->bindModels($modelName);
-    }
-
-    public function generateMigration($modelName, $pluralModelName)
-    {
-        Artisan::call('make:migration', [
-            'name' => "create_{$pluralModelName}_table",
-            '--create' => $pluralModelName,
+        Artisan::call('make:model', [
+            'name' => "{$modelName}",
         ]);
     }
 
-    public function generateRequest($modelName)
+    public function generateMigration($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
+    {
+        $pluralModelName = $this->convertToSnakeCase($modelName);
+
+        // Get the migration content with user-defined fields
+        $migrationContent = $this->getMigrationContent($fillableFields, $foreignIdFields);
+
+        // Load the migration stub
+        $migrationStubPath = resource_path('stubs/migration.stub');
+        $migrationStub = file_get_contents($migrationStubPath);
+
+        // Replace placeholders in the stub with actual values
+        $migrationStub = str_replace('{ModelName}', $modelName, $migrationStub);
+        $migrationStub = str_replace('{TableName}', $pluralModelName, $migrationStub);
+        $migrationStub = str_replace('{UserDefinedColumns}', $migrationContent, $migrationStub);
+
+        // Save the migration file
+        $migrationFileName = date('Y_m_d_His') . "_create_{$pluralModelName}_table.php";
+        $migrationFilePath = database_path("migrations/{$migrationFileName}");
+        file_put_contents($migrationFilePath, $migrationStub);
+
+        // Output success message
+        $this->command->info("Migration created successfully: $migrationFileName");
+    }
+
+    public function convertToSnakeCase($input): string
+    {
+        $snakeCase = preg_replace_callback('/([A-Z])/', function ($matches) {
+            return '_' . strtolower($matches[1]);
+        }, $input);
+
+        $snakeCase = ltrim($snakeCase, '_');
+
+        $snakeCase .= 's';
+
+        return $snakeCase;
+    }
+
+    private function getMigrationContent($fillableFields, $foreignIdFields): string
+    {
+        $migrationContent = '';
+
+        // User-defined fields
+        if ($fillableFields) {
+            foreach ($fillableFields as $field) {
+                $migrationContent .= "\$table->{$field['type']}('{$field['name']}');\n";
+            }
+        }
+
+        // Foreign ID fields
+        if ($foreignIdFields) {
+            foreach ($foreignIdFields as $field) {
+                $migrationContent .= "\$table->foreignId('{$field['name']}')->constrained();\n";
+            }
+        }
+
+        return $migrationContent;
+    }
+
+    public function generateRequest($modelName): void
     {
         Artisan::call('make:request', ['name' => "{$modelName}Request"]);
     }
 
-    public function generateValidation($requestClassName, $directory = null)
+    public function generateValidation($requestClassName, $directory = null): void
     {
-        // Use the Laravel 'app/Http/Requests' directory as the default if no directory is specified
         $defaultDirectory = app_path('Http/Requests');
 
-        // Check if the specified directory exists; if not, use the default directory
         if ($directory && !is_dir($directory)) {
             $this->command->error("The specified directory '{$directory}' does not exist. Using default directory: {$defaultDirectory}");
             $directory = $defaultDirectory;
@@ -77,7 +184,6 @@ class LaraCrudService
 
         $stubFilePath = resource_path('stubs/validation.stub');
 
-        // Check if the stub file exists
         if (!file_exists($stubFilePath)) {
             $this->command->error("Validation stub file not found: {$stubFilePath}");
             return;
@@ -90,19 +196,16 @@ class LaraCrudService
         file_put_contents($validationPath, $validationContent);
     }
 
-    public function appendRoute($modelName, $pluralModelName, $directory)
+    public function appendRoute($modelName, $pluralModelName, $directory): void
     {
         $modelKeyName = Str::camel(class_basename($modelName));
-        $routeFilePath = base_path('routes/api.php');
+        $routeFilePath = base_path('routes/web.php');
         $existingRouteContent = File::exists($routeFilePath) ? File::get($routeFilePath) : '';
 
-        // Define the controller name
         $modelNameController = "{$modelName}Controller";
-
-        // Define the namespace
         $namespace = 'App\Http\Controllers';
 
-        $apiResource = "Route::apiResource('$pluralModelName', '$namespace\\$modelNameController::class');";
+        $apiResource = "Route::apiResource('$pluralModelName', {$namespace}\\{$modelNameController}::class);";
 
         if (!Str::contains($existingRouteContent, $apiResource)) {
             File::append($routeFilePath, "\n$apiResource");
@@ -112,9 +215,7 @@ class LaraCrudService
         }
     }
 
-
-
-    public function generateService($modelName, $directory)
+    public function generateService($modelName, $directory): void
     {
         $servicesDirectory = app_path('Services');
         if (!is_dir($servicesDirectory)) {
@@ -128,50 +229,121 @@ class LaraCrudService
             return;
         }
 
+        $serviceContent = file_get_contents($serviceStubPath);
+
+        $serviceContent = str_replace('{ModelName}', $modelName, $serviceContent);
+
+        $serviceClassName = "{$modelName}Service";
 
         $servicePath = $directory
-            ? $directory . '/' . $modelName . 'Service.php'
-            : $servicesDirectory . '/' . $modelName . 'Service.php';
+            ? $directory . '/' . $serviceClassName . '.php'
+            : $servicesDirectory . '/' . $serviceClassName . '.php';
 
-        $serviceContent = file_get_contents($serviceStubPath);
+        $targetDirectory = dirname($servicePath);
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
         file_put_contents($servicePath, $serviceContent);
+
+        $this->command->info("Service generated successfully: {$servicePath}");
     }
 
-
-    public function includeDemoControllerContent($modelName, $directory)
+    public function generateRepository($modelName, $directory): void
     {
-        // Define the model key name for implicit route model binding
+        $repositoryDirectory = app_path('Repositories/Eloquent/');
+        if (!is_dir($repositoryDirectory)) {
+            mkdir($repositoryDirectory, 0755, true);
+        }
+
+        $repositoryStubPath = resource_path('stubs/repository.stub');
+
+        if (!file_exists($repositoryStubPath)) {
+            $this->command->error("Service stub file not found: {$repositoryStubPath}");
+            return;
+        }
+
+        $repositoryContent = file_get_contents($repositoryStubPath);
+
+        $repositoryContent = str_replace('{ModelName}', $modelName, $repositoryContent);
+
+        $repositoryClassName = "{$modelName}Repository";
+
+        $repositoryPath = $directory
+            ? $directory . '/' . $repositoryClassName . '.php'
+            : $repositoryDirectory . '/' . $repositoryClassName . '.php';
+
+        $targetDirectory = dirname($repositoryPath);
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
+        file_put_contents($repositoryPath, $repositoryContent);
+
+        $this->command->info("Repository generated successfully: {$repositoryPath}");
+    }
+
+    public function generateInterface($modelName, $directory): void
+    {
+        $interfaceDirectory = app_path('Repositories/Contracts/');
+        if (!is_dir($interfaceDirectory)) {
+            mkdir($interfaceDirectory, 0755, true);
+        }
+
+        $interfaceStubPath = resource_path('stubs/interface.stub');
+
+        if (!file_exists($interfaceStubPath)) {
+            $this->command->error("Service stub file not found: {$interfaceStubPath}");
+            return;
+        }
+
+        $interfaceContent = file_get_contents($interfaceStubPath);
+
+        $interfaceContent = str_replace('{ModelName}', $modelName, $interfaceContent);
+
+        $interfaceClassName = "{$modelName}RepositoryInterface";
+
+        $interfacePath = $directory
+            ? $directory . '/' . $interfaceClassName . '.php'
+            : $interfaceDirectory . '/' . $interfaceClassName . '.php';
+
+        $targetDirectory = dirname($interfacePath);
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
+        file_put_contents($interfacePath, $interfaceContent);
+
+        $this->command->info("Interface generated successfully: {$interfacePath}");
+    }
+
+    public function includeDemoControllerContent($modelName, $directory): void
+    {
         $modelKeyName = Str::camel(class_basename($modelName));
 
-        // Define the controller class name
         $controllerName = "{$modelName}Controller";
 
-        // Get the demo controller stub content
-        $demoControllerStubPath = resource_path('stubs/demo_controller.stub');
+        $demoControllerStubPath = resource_path('stubs/controller.stub');
 
         if (!file_exists($demoControllerStubPath)) {
             $this->command->error("Demo Controller stub file not found: {$demoControllerStubPath}");
             return;
         }
 
-        // Replace placeholders in the demo controller content with actual values
         $demoControllerContent = file_get_contents($demoControllerStubPath);
         $placeholders = ['{ModelName}', '{ModelKeyName}', '{ControllerName}'];
         $replacements = [$modelName, $modelKeyName, $controllerName];
         $demoControllerContent = str_replace($placeholders, $replacements, $demoControllerContent);
 
-        // Determine the target path based on the specified directory or the default 'Http/Controllers' directory
         $controllerPath = $directory
             ? $directory . '/Http/Controllers/' . $controllerName . '.php'
             : app_path('Http/Controllers/') . $controllerName . '.php';
 
-        // Ensure the target directory exists; if not, create it
         $targetDirectory = dirname($controllerPath);
         if (!is_dir($targetDirectory)) {
             mkdir($targetDirectory, 0755, true);
         }
 
-        // Write the demo controller content to the target path
         file_put_contents($controllerPath, $demoControllerContent);
 
         $this->command->info("Demo Controller generated successfully: {$controllerPath}");

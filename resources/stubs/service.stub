@@ -2,17 +2,15 @@
 
 namespace App\Services;
 
-use App\Models\{ModelName};
+use App\Repositories\Contracts\{ModelName}RepositoryInterface;
 
-class {ModelName}Service
+
+class {ModelName}Service extends BaseService
 {
-    /**
-     * Add your service methods here
-     */
+    protected $repository;
 
-    // Example service method
-    public function exampleMethod({ModelName} $model)
+    public function __construct({ModelName}RepositoryInterface $repository)
     {
-        // Your service logic here
+        parent::__construct($repository);
     }
 }
