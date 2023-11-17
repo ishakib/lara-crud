@@ -42,11 +42,11 @@ class LaraCrudServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/Repositories' => app_path('Repositories'),
-        ], 'service');
+        ], 'laracrud-service');
 
         $this->publishes([
             __DIR__ . '/Services' => app_path('Services'),
-        ], 'service');
+        ], 'laracrud-service');
     }
 
     /**
