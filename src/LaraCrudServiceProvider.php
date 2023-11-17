@@ -37,8 +37,7 @@ class LaraCrudServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/stubs' => resource_path('stubs'),
             __DIR__ . '/Repositories' => app_path('Repositories'),
             __DIR__ . '/Services' => app_path('Services'),
-            __DIR__ . '/RepositoryRegisterProvider.php' => app_path('Providers/RepositoryRegisterProvider.php'),
-        ], '[laravel-assets');
+        ], '[laracrud-assets');
     }
 
     /**
