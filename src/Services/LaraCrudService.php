@@ -124,7 +124,7 @@ class LaraCrudService
         $this->command->info("Service generated successfully: {$servicePath}");
     }
 
-    public function generateRepository(): void
+    public function generateRepository($modelName, $directory): void
     {
         $repositoryDirectory = app_path('Repositories/Eloquent/');
         if (!is_dir($repositoryDirectory)) {
@@ -158,14 +158,14 @@ class LaraCrudService
         $this->command->info("Repository generated successfully: {$repositoryPath}");
     }
 
-    public function generateInterface(): void
+    public function generateInterface($modelName, $directory): void
     {
         $interfaceDirectory = app_path('Repositories/Contracts/');
         if (!is_dir($interfaceDirectory)) {
             mkdir($interfaceDirectory, 0755, true);
         }
 
-        $interfaceStubPath = resource_path('stubs/repository.stub');
+        $interfaceStubPath = resource_path('stubs/interface.stub');
 
         if (!file_exists($interfaceStubPath)) {
             $this->command->error("Service stub file not found: {$interfaceStubPath}");
