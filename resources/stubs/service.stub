@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Services;
+;
+use App\Repositories\Contracts\{ModelName}RepositoryInterface;
 
-use App\Models\{ModelName};
 
 class {ModelName}Service extends BaseService
 {

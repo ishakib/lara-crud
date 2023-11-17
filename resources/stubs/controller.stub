@@ -6,6 +6,7 @@ use App\Models\{ModelName};
 use App\Http\Requests\{ModelName}Request;
 use App\Services\{ModelName}Service;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class {ModelName}Controller extends Controller
 {
@@ -21,19 +22,19 @@ class {ModelName}Controller extends Controller
         $posts = $this->service->all();
         return response()->json(['posts' => $posts]);
     }
-    public function store({ModelName}Request $request)
+    public function store({ModelName}Request $request): JsonResponse
     {
-        $post = $this->postService->create($request->validated());
+        $post = $this->service->create($request->validated());
 
         return response()->json(['post' => $post], 201);
     }
 
-    public function show({ModelName} $dynamicModel)
+    public function show({ModelName} $dynamicModel): JsonResponse
     {
         return response()->json(['data' => $dynamicModel], 200);
     }
 
-    public function update({ModelName}Request $request, {ModelName} $dynamicModel)
+    public function update({ModelName}Request $request, {ModelName} $dynamicModel): JsonResponse
     {
         $updatedItem = $this->service->update($dynamicModel->id, $request->validated());
         if (!$updatedItem) {
