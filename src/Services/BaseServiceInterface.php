@@ -1,7 +1,7 @@
 <?php
 
 
-namespace laracrud\Services;
+namespace App\Services;
 interface BaseServiceInterface
 {
     public function all();
