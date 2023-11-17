@@ -74,7 +74,7 @@ class LaraCrudService
         return $colorCodes[$color] . $text . $reset;
     }
 
-    public function parseFields($fields, $type = 'fillable')
+    public function parseFields($fields, $type = 'fillable'): array
     {
         $fieldsArray = [];
 
@@ -83,7 +83,7 @@ class LaraCrudService
             $name = $fieldParts[0];
 
             if ($type === 'fillable') {
-                $type = isset($fieldParts[1]) ? $fieldParts[1] : 'string';
+                $type = $fieldParts[1] ?? 'string';
             } elseif ($type === 'foreign_id') {
                 $type = 'foreignId';
             }
@@ -94,35 +94,23 @@ class LaraCrudService
         return $fieldsArray;
     }
 
-    public function generateModel($modelName, $directory): void
+    public function generateModel($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
     {
-        // Determine the full path for the model
-        $modelPath = app_path('Models');
-
-        // If a directory is specified, append it to the model path
-        if ($directory) {
-            $modelPath .= '/' . $directory;
-        }
-
-        // Ensure the directory exists, and create it if not
-        if (!file_exists($modelPath)) {
-            mkdir($modelPath, 0755, true);
-        }
-
-        // Generate the model with the specified path
         Artisan::call('make:model', [
-            'name' => "Models\\{$directory}\\{$modelName}",
+            'name' => "{$modelName}",
         ]);
     }
 
     public function generateMigration($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
     {
         $pluralModelName = $this->convertToSnakeCase($modelName);
-        $options = $directory ? ['--path' => "database/migrations/{$directory}"] : [];
-        Artisan::call('make:migration', array_merge(['name' => "create_{$pluralModelName}_table", '--create' => $pluralModelName], $options));
+        Artisan::call('make:migration', [
+            'name' => "create_{$pluralModelName}_table",
+            '--create' => $pluralModelName,
+        ]);
     }
 
-    public function convertToSnakeCase($input)
+    public function convertToSnakeCase($input): string
     {
         $snakeCase = preg_replace_callback('/([A-Z])/', function ($matches) {
             return '_' . strtolower($matches[1]);
