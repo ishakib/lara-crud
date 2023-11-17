@@ -33,8 +33,7 @@ class {ModelName}Controller extends Controller
 
     public function update({ModelName}Request $request, $id)
     {
-        $updatedItem = $this->service->update($id, $request->validated());
-
+        $updatedItem = $this->postService->update($id, $request->validated());
         if (!$updatedItem) {
             return response()->json(['message' => '{ModelName} not found'], 404);
         }
@@ -42,9 +41,9 @@ class {ModelName}Controller extends Controller
         return response()->json(['message' => '{ModelName} updated successfully', 'data' => new {ModelName}Resource($updatedItem)], 200);
     }
 
-    public function destroy({ModelName} $dynamicModel)
+    public function destroy({ModelName} $dynamicModel): JsonResponse
     {
-        $deleted = $dynamicModel->delete();
+        $deleted = $this->postService->delete($dynamicModel->id);
 
         if (!$deleted) {
             return response()->json(['message' => '{ModelName} not found'], 404);
