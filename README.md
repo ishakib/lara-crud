@@ -19,7 +19,24 @@ You can install LaraCrud via Composer. Open a terminal window and run the follow
 
 After installation, publish the package assets:
 
+Go to config/app.php and find providers array
+At the bottom providers array add two lines given below
+
+```
+laracrud\LaraCrudServiceProvider::class,
+//App\Providers\RepositoryRegisterProvider::class
+```
+
 ```php artisan vendor:publish --tag=laracrud-publish```
+
+Again Go to config/app.php and find providers array
+At the bottom providers array add two lines given below
+```
+laracrud\LaraCrudServiceProvider::class,
+App\Providers\RepositoryRegisterProvider::class
+```
+```php artisan vendor:publish --tag=laracrud-publish```
+
 
 ## Usage
 Once installed, you can use the LaraCrud Artisan command to generate a complete CRUD module. Here's a simple example:

@@ -49,8 +49,5 @@ class RepositoryRegisterProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->publishes([
-            __DIR__ . '/RepositoryRegisterProvider.php' => app_path('Providers/RepositoryRegisterProvider.php'),
-        ], 'laracrud-publish');
     }
 }
