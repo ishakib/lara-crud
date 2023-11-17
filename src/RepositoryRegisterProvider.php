@@ -1,10 +1,9 @@
 <?php
 
-namespace laracrud;
+namespace App\Providers;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
-use function App\Providers\app_path;
 
 class RepositoryRegisterProvider extends ServiceProvider
 {
