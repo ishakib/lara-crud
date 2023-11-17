@@ -22,11 +22,11 @@ class LaraCrudService
             $modelName = $this->getModelName();
         } while (empty(trim($modelName)));
 
-        // Get fillable fields from the user
-        $fillableInput = $this->command->ask('Enter fillable fields (comma-separated, field:type)', 'name1:string, name2:string, date_of_birth:date....');
+        $this->command->comment($this->colorize("Note: Enter fillable fields (comma-separated, field:type), Example:  name1:string, name2:string, date_of_birth:date....", "purple"));
+
+        $fillableInput = $this->command->ask('Enter fillable fields (comma-separated, or leave blank)', '');
         $fillableFields = $this->parseFields($fillableInput);
 
-        // Get foreign ID fields from the user
         $foreignIdInput = $this->command->ask('Enter foreign ID fields (comma-separated, or leave blank)', '');
         $foreignIdFields = $this->parseFields($foreignIdInput);
 
@@ -76,23 +76,31 @@ class LaraCrudService
 
     public function parseFields($fields, $type = 'fillable'): array
     {
+        if (empty($fields)) {
+            return [];
+        }
+
         $fieldsArray = [];
 
-        foreach (explode(',', $fields) as $field) {
-            $fieldParts = array_map('trim', explode(':', $field));
-            $name = $fieldParts[0];
+        // Add a condition to check for an empty string
+        if ($fields !== '') {
+            foreach (explode(',', $fields) as $field) {
+                $fieldParts = array_map('trim', explode(':', $field));
+                $name = $fieldParts[0];
 
-            if ($type === 'fillable') {
-                $type = $fieldParts[1] ?? 'string';
-            } elseif ($type === 'foreign_id') {
-                $type = 'foreignId';
+                if ($type === 'fillable') {
+                    $type = $fieldParts[1] ?? 'string';
+                } elseif ($type === 'foreign_id') {
+                    $type = 'foreignId';
+                }
+
+                $fieldsArray[] = compact('name', 'type');
             }
-
-            $fieldsArray[] = compact('name', 'type');
         }
 
         return $fieldsArray;
     }
+
 
     public function generateModel($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
     {
@@ -104,10 +112,26 @@ class LaraCrudService
     public function generateMigration($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
     {
         $pluralModelName = $this->convertToSnakeCase($modelName);
-        Artisan::call('make:migration', [
-            'name' => "create_{$pluralModelName}_table",
-            '--create' => $pluralModelName,
-        ]);
+
+        // Get the migration content with user-defined fields
+        $migrationContent = $this->getMigrationContent($fillableFields, $foreignIdFields);
+
+        // Load the migration stub
+        $migrationStubPath = resource_path('stubs/migration.stub');
+        $migrationStub = file_get_contents($migrationStubPath);
+
+        // Replace placeholders in the stub with actual values
+        $migrationStub = str_replace('{ModelName}', $modelName, $migrationStub);
+        $migrationStub = str_replace('{TableName}', $pluralModelName, $migrationStub);
+        $migrationStub = str_replace('{UserDefinedColumns}', $migrationContent, $migrationStub);
+
+        // Save the migration file
+        $migrationFileName = date('Y_m_d_His') . "_create_{$pluralModelName}_table.php";
+        $migrationFilePath = database_path("migrations/{$migrationFileName}");
+        file_put_contents($migrationFilePath, $migrationStub);
+
+        // Output success message
+        $this->command->info("Migration created successfully: $migrationFileName");
     }
 
     public function convertToSnakeCase($input): string
@@ -121,6 +145,27 @@ class LaraCrudService
         $snakeCase .= 's';
 
         return $snakeCase;
+    }
+
+    private function getMigrationContent($fillableFields, $foreignIdFields): string
+    {
+        $migrationContent = '';
+
+        // User-defined fields
+        if ($fillableFields) {
+            foreach ($fillableFields as $field) {
+                $migrationContent .= "\$table->{$field['type']}('{$field['name']}');\n";
+            }
+        }
+
+        // Foreign ID fields
+        if ($foreignIdFields) {
+            foreach ($foreignIdFields as $field) {
+                $migrationContent .= "\$table->foreignId('{$field['name']}')->constrained();\n";
+            }
+        }
+
+        return $migrationContent;
     }
 
     public function generateRequest($modelName): void
