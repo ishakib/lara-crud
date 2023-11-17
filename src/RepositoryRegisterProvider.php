@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,10 +19,10 @@ class RepositoryRegisterProvider extends ServiceProvider
 
     protected function registerRepositories(): void
     {
-        $baseNamespace = 'App\Repositories';
-        $contractsNamespace = 'Contracts';
+        $baseNamespace = Config::get('laracrud.repositories.namespace', 'App\Repositories');
+        $contractsNamespace = Config::get('laracrud.repositories.contracts', 'Contracts');
 
-        $repositoriesPath = app_path('Repositories');
+        $repositoriesPath = app_path(Config::get('laracrud.repositories.path', 'Repositories'));
         $contractsPath = "{$repositoriesPath}/{$contractsNamespace}";
 
         $repositories = [];
