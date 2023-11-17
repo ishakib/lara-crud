@@ -15,12 +15,12 @@ class LaraCrudCommand extends Command
     {
         $crudService->setCommand($this);
 
-        list($modelName, $directory) = $crudService->getInteractiveInputs();
+        list($modelName, $directory, $fillableFields, $foreignIdFields) = $crudService->getInteractiveInputs();
 
         $pluralModelName = Str::plural(strtolower($modelName));
 
-        $crudService->generateModel($modelName, $directory);
-        $crudService->generateMigration($modelName, $pluralModelName, $directory);
+        $crudService->generateModel($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields);
+        $crudService->generateMigration($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields);
         $crudService->generateRequest($modelName, $directory);
         $crudService->generateValidation("App\Http\Requests\\{$modelName}Request", $directory);
         $crudService->generateService($modelName, $directory);

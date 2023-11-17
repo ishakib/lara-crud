@@ -18,29 +18,121 @@ class LaraCrudService
 
     public function getInteractiveInputs(): array
     {
-        $modelName = $this->command->ask('Enter model name...');
-        $directoryChoice = $this->command->choice('Do you want to specify a directory where every file will be created?', ['y', 'n'], 'n');
+        do {
+            $modelName = $this->getModelName();
+        } while (empty(trim($modelName)));
 
-        if ($directoryChoice === 'y') {
-            $directory = $this->command->ask('Enter directory name...');
-        } else {
-            $directory = null;
+        // Get fillable fields from the user
+        $fillableInput = $this->command->ask('Enter fillable fields (comma-separated, field:type)', 'name1:string, name2:string, date_of_birth:date....');
+        $fillableFields = $this->parseFields($fillableInput);
+
+        // Get foreign ID fields from the user
+        $foreignIdInput = $this->command->ask('Enter foreign ID fields (comma-separated, or leave blank)', '');
+        $foreignIdFields = $this->parseFields($foreignIdInput);
+
+        $directory = null;
+
+        return [$modelName, $directory, $fillableFields, $foreignIdFields];
+    }
+
+    private function getModelName(): string
+    {
+        do {
+            $this->command->comment(
+                $this->colorize('Note: Model name must be Singular and in PascalCase (Exp: ModelName).
+            If you want to exit, type "q".', 'purple'));
+
+            $modelName = $this->command->ask(
+                $this->colorize('Enter model name...', 'cyan')
+            );
+
+            if (strtolower($modelName) === 'q') {
+                $this->command->line($this->colorize('Exiting command...', 'yellow'));
+                exit();
+            }
+
+        } while (empty(trim($modelName)));
+
+        return $modelName;
+    }
+
+    private function colorize($text, $color): string
+    {
+        $colorCodes = [
+            'black' => "\033[0;30m",
+            'red' => "\033[0;31m",
+            'green' => "\033[0;32m",
+            'yellow' => "\033[0;33m",
+            'blue' => "\033[0;34m",
+            'purple' => "\033[1;35m",
+            'cyan' => "\033[0;36m",
+            'white' => "\033[0;37m",
+        ];
+
+        $reset = "\033[0m";
+
+        return $colorCodes[$color] . $text . $reset;
+    }
+
+    public function parseFields($fields, $type = 'fillable')
+    {
+        $fieldsArray = [];
+
+        foreach (explode(',', $fields) as $field) {
+            $fieldParts = array_map('trim', explode(':', $field));
+            $name = $fieldParts[0];
+
+            if ($type === 'fillable') {
+                $type = isset($fieldParts[1]) ? $fieldParts[1] : 'string';
+            } elseif ($type === 'foreign_id') {
+                $type = 'foreignId';
+            }
+
+            $fieldsArray[] = compact('name', 'type');
         }
 
-        return [$modelName, $directory];
+        return $fieldsArray;
     }
 
-    public function generateModel($modelName): void
+    public function generateModel($modelName, $directory): void
     {
-        Artisan::call('make:model', ['name' => $modelName]);
-    }
+        // Determine the full path for the model
+        $modelPath = app_path('Models');
 
-    public function generateMigration($modelName, $pluralModelName): void
-    {
-        Artisan::call('make:migration', [
-            'name' => "create_{$pluralModelName}_table",
-            '--create' => $pluralModelName,
+        // If a directory is specified, append it to the model path
+        if ($directory) {
+            $modelPath .= '/' . $directory;
+        }
+
+        // Ensure the directory exists, and create it if not
+        if (!file_exists($modelPath)) {
+            mkdir($modelPath, 0755, true);
+        }
+
+        // Generate the model with the specified path
+        Artisan::call('make:model', [
+            'name' => "Models\\{$directory}\\{$modelName}",
         ]);
+    }
+
+    public function generateMigration($modelName, $pluralModelName, $directory, $fillableFields, $foreignIdFields): void
+    {
+        $pluralModelName = $this->convertToSnakeCase($modelName);
+        $options = $directory ? ['--path' => "database/migrations/{$directory}"] : [];
+        Artisan::call('make:migration', array_merge(['name' => "create_{$pluralModelName}_table", '--create' => $pluralModelName], $options));
+    }
+
+    public function convertToSnakeCase($input)
+    {
+        $snakeCase = preg_replace_callback('/([A-Z])/', function ($matches) {
+            return '_' . strtolower($matches[1]);
+        }, $input);
+
+        $snakeCase = ltrim($snakeCase, '_');
+
+        $snakeCase .= 's';
+
+        return $snakeCase;
     }
 
     public function generateRequest($modelName): void
@@ -74,7 +166,7 @@ class LaraCrudService
     public function appendRoute($modelName, $pluralModelName, $directory): void
     {
         $modelKeyName = Str::camel(class_basename($modelName));
-        $routeFilePath = base_path('routes/web.php');
+        $routeFilePath = base_path('routes/api.php');
         $existingRouteContent = File::exists($routeFilePath) ? File::get($routeFilePath) : '';
 
         $modelNameController = "{$modelName}Controller";
